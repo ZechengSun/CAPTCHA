@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<!-- 腾讯验证码接口开发文档 https://cloud.tencent.com/document/product/1110/36841 -->
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tencent_CAPTCHA</title>
+</head>
+
+<body>
+    <!--id :            (不可变) 元素的 ID, 值必须是 'TencentCaptcha'-->
+    <!--data-appid :    (必须) 验证码CaptchaAppId, 从腾讯云的验证码控制台中获取, 验证码控制台页面内【图形验证】>【验证列表】进行查看 。如果未新建验证，请根据业务需求选择适合的验证渠道、验证场景进行新建-->
+    <!--data-cbfn :     (必须) 回调函数名, 函数名要与 data-cbfn 相同-->
+    <!--data-biz-state :(可选) 业务自定义透传参数, 会在回调函数内获取到 （res.bizState）-->
+    <!-- <div id="TencentCaptcha" data-appid="000" data-cbfn="callbackName"></div> -->
+	<h5 id="res"></h5>
+	<script>
+		//根据参数名获取参数值
+		function getQueryStringByName(name){
+		     var result = location.search.match(new RegExp("[\?\&]" + name+ "=([^\&]+)","i"));
+		     if(result == null || result.length < 1){
+		         return "";
+		     }
+		     return result[1];
+		}
+		var appid=getQueryStringByName("appid");
+		var b = document.createElement("div");
+		b.id="TencentCaptcha";
+		b.setAttribute("data-appid", appid);
+		b.setAttribute("data-cbfn", "callbackName");
+		document.body.appendChild(b);
+	</script>
+</body>
+<script src="https://ssl.captcha.qq.com/TCaptcha.js"></script>
+<script>
+	
+	window.onload=function(){
+		document.getElementById("TencentCaptcha").click();
+	}
+	
+	
+    // 回调函数需要放在全局对象window下
+    var callbackName = function (res) {
+        // 返回结果
+        // ret         Int       验证结果，0：验证成功。2：用户主动关闭验证码。
+        // ticket      String    验证成功的票据，当且仅当 ret = 0 时 ticket 有值。
+        // CaptchaAppId       String    验证码应用ID。
+        // bizState    Any       自定义透传参数。
+        // randstr     String    本次验证的随机串，请求后台接口时需带上。
+        console.log('callback:', res);
+
+
+        // res（用户主动关闭验证码）= {ret: 2, ticket: null}
+        // res（验证成功） = {ret: 0, ticket: "String", randstr: "String"}
+        // res（客户端出现异常错误 仍返回可用票据） = {ret: 0, ticket: "String", randstr: "String",  errorCode: Number, errorMessage: "String"}
+        if (res.ret === 0) {
+            var randstr=res.randstr
+			var ticket=res.ticket
+			document.getElementById("res").innerHTML=JSON.stringify(res)
+        }
+    }
+</script>
+
+</html>
